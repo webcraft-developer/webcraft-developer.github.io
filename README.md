@@ -1,4 +1,4 @@
-# 🟦 Minecraft Web Edition (Ultra)
+# 🟦 SixSevenCraft
 
 An infinite, procedural, voxel-based survival game built entirely in JavaScript using **Three.js**. This project features a fully functional sandbox environment running directly in the browser with advanced physics, crafting, and multiplayer simulation.
 
@@ -13,8 +13,7 @@ An infinite, procedural, voxel-based survival game built entirely in JavaScript 
 | **Look** | `Mouse` |
 | **Mine / Explode TNT** | `Left Click` |
 | **Place Block** | `Right Click` |
-| **Select Block** | `1` - `8` |
-| **Open Crafting** | `E` |
+| **Select Block** | `1` - `9` |
 | **Capture Mouse** | `Left Click (on screen)` |
 
 ---
@@ -22,12 +21,9 @@ An infinite, procedural, voxel-based survival game built entirely in JavaScript 
 ## ✨ Features
 
 * **🌍 Infinite Terrain:** Procedural world generation using noise functions with chunk-based loading for endless exploration.
-* **💥 Voxel Physics:** Falling sand gravity and TNT-based explosions that modify the landscape.
-* **🌊 Dynamic Liquids:** Spreading Water and Lava with swimming mechanics and fire damage.
-* **🛠️ Survival Systems:** Health and Hunger bars with food (Apples) and a crafting menu for tools.
-* **📦 Chest System:** Functional storage containers that save their inventory to specific coordinates.
+* **💥 Voxel Physics:** TNT-based explosions that modify the landscape.
+* **🛠️ Survival Systems:** Health and Hunger bars with food.
 * **☀️ Ultra Graphics:** Real-time shadow mapping, ambient occlusion, and a dynamic Day/Night cycle.
-* **🔊 Procedural Audio:** 8-bit sound effects synthesized in real-time via the Web Audio API.
 
 ---
 
@@ -35,16 +31,9 @@ An infinite, procedural, voxel-based survival game built entirely in JavaScript 
 
 * **Engine:** [Three.js](https://threejs.org/) (WebGL)
 * **Physics:** Custom AABB collision detection and voxel-step gravity.
-* **Storage:** `localStorage` integration for persistent world saving.
 * **Architecture:** Chunk-based memory management to maintain high FPS during infinite travel.
 
 ---
-
-## 🛠️ How to Customize
-
-1.  **Change World Shape:** Edit the `getHeight()` function in `index.html` to modify the terrain noise.
-2.  **Add Blocks:** Add new materials to the `mats` array and update the hotbar UI.
-3.  **Adjust Day Cycle:** Change the `timeOfDay` increment speed in the `animate` loop.
 
 ## 📄 License
 This project is open-source and available under the MIT License.
