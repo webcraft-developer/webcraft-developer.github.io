@@ -21,15 +21,6 @@ This project is intended to become a Minecraft Classic clone using HTML5 technol
 
 ---
 
-## ✨ Features
-
-* **🌍 Infinite Terrain:** Procedural world generation using noise functions with chunk-based loading for endless exploration.
-* **💥 Voxel Physics:** TNT-based explosions that modify the landscape.
-* **🛠️ Survival Systems:** Health and Hunger bars with food.
-* **☀️ Ultra Graphics:** Real-time shadow mapping, ambient occlusion, and a dynamic Day/Night cycle.
-
----
-
 Structure
 ---------------------
 
