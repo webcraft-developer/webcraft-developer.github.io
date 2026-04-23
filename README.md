@@ -1,10 +1,7 @@
 WebCraft (HTML5 Minecraft)
 ---------------------
-[![GitHub issues](https://img.shields.io/github/issues/Overv/WebCraft.svg)](https://github.com/Overv/WebCraft/issues)
-[![GitHub forks](https://img.shields.io/github/forks/Overv/WebCraft.svg)](https://github.com/Overv/WebCraft/network)
-[![GitHub stars](https://img.shields.io/github/stars/Overv/WebCraft.svg)](https://github.com/Overv/WebCraft/stargazers)
-[![GitHub license](https://img.shields.io/github/license/Overv/WebCraft.svg)](https://github.com/Overv/WebCraft/blob/master/LICENSE)
-[![Maintainability](https://api.codeclimate.com/v1/badges/ce6335d88c8072a3f1d3/maintainability)](https://codeclimate.com/github/WarenGonzaga/WebCraft/maintainability)
+[![GitHub issues](https://img.shields.io/github/issues/webcraft-developer/webcraft-developer.github.io)](https://github.com/webcraft-developer/webcraft-developer.github.io/issues)
+[![GitHub license](https://img.shields.io/badge/licence-mit-blue)](https://github.com/webcraft-developer/webcraft-developer.github.io/blob/main/LICENSE)
 
 This project is intended to become a Minecraft Classic clone using HTML5 technologies, most notably WebGL and WebSockets. No third-party libraries are used, with the exception of glmatrix and socket.io. People who have written similar demos used libraries such as *three.js*, but it is both foolish and inefficient to use a 3D engine for rendering a large number of blocks.
 
