@@ -5,11 +5,6 @@ WebCraft (HTML5 Minecraft)
 
 This project is intended to become a Minecraft Classic clone using HTML5 technologies, most notably WebGL and WebSockets. No third-party libraries are used, with the exception of glmatrix and socket.io. People who have written similar demos used libraries such as *three.js*, but it is both foolish and inefficient to use a 3D engine for rendering a large number of blocks.
 
-Screenshots
----------------------
-
-<a href="http://i.imgur.com/tDzki.png">![Singleplayer structure](http://i.imgur.com/2qBGy.png)</a>
-
 ---
 
 ## 🎮 Controls
