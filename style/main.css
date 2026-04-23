@@ -147,3 +147,47 @@ body {
 	font-family: minecraftia;
 	font-size: 16px;
 }
+
+/* ===========================
+   Game Mode Menu (index.html)
+   =========================== */
+
+.menu-screen {
+    margin: 0;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background: url('../media/background.png');
+    font-family: minecraftia;
+    color: white;
+    text-shadow: #3f3f3f 2px 2px 0px;
+}
+
+.menu-title {
+    font-size: 48px;
+    margin-bottom: 40px;
+}
+
+.menu-btn {
+    font-family: minecraftia;
+    font-size: 24px;
+
+    padding: 20px 40px;
+    margin: 15px;
+
+    background: #3c8527;
+    border: 4px solid #2a5f1a;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+
+    display: inline-block;
+}
+
+.menu-btn:hover {
+    background: #4caf50;
+}
