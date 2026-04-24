@@ -1,226 +1,203 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<title>WebCraft</title>
+<head>
+    <title>WebCraft Multiplayer</title>
 
-		<!-- Character encoding -->
-		<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <meta charset="UTF-8">
+    <link href="style/main.css" rel="stylesheet">
 
-		<!-- Stylesheet -->
-		<link href="style/main.css" rel="stylesheet" type="text/css">
+    <!-- Core libraries -->
+    <script src="js/glMatrix-1.2.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
-		<!-- Modules -->
-		<script src="js/glMatrix-1.2.min.js" type="text/javascript"></script>
-        <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-		<script src="js/blocks.js" type="text/javascript"></script>
-		<script src="js/helpers.js" type="text/javascript"></script>
-		<script src="js/world.js" type="text/javascript"></script>
-		<script src="js/render.js" type="text/javascript"></script>
-		<script src="js/physics.js" type="text/javascript"></script>
-		<script src="js/player.js" type="text/javascript"></script>
-		<script src="js/network.js" type="text/javascript"></script>
-	</head>
+    <!-- Game engine files -->
+    <script src="js/blocks.js"></script>
+    <script src="js/helpers.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/network.js"></script>
+</head>
 
-	<body oncontextmenu="return false">
-		<!-- Render surface -->
-		<canvas id="renderSurface" style="visiblity: hidden"></canvas>
+<body oncontextmenu="return false">
 
-		<!-- Material selection -->
-		<table id="materialSelector" style="display:none">
-			<tr></tr>
-		</table>
+    <!-- Render surface -->
+    <canvas id="renderSurface" style="visibility:hidden"></canvas>
 
-		<!-- Chatbox -->
-		<div id="chatbox" style="visibility: hidden">
-			<span id="chatbox_text"></span>
-		</div>
-		<input id="chatbox_entry" type="text" maxlength="100" spellcheck="false" onkeypress="onChatEnter( this, event )" style="visibility: hidden" />
+    <!-- Material selection -->
+    <table id="materialSelector" style="display:none">
+        <tr></tr>
+    </table>
 
-		<!-- Nickname box -->
-		<div id="nickname">
-			<span>Nickname:</span><br />
-			<input id="nickname_input" type="text" maxlength="15" spellcheck="false" onkeypress="onNicknameEnter( this, event )" />
-		</div>
+    <!-- Chatbox -->
+    <div id="chatbox" style="visibility:hidden">
+        <span id="chatbox_text"></span>
+    </div>
+    <input id="chatbox_entry" type="text" maxlength="100" spellcheck="false"
+           onkeypress="onChatEnter(this, event)" style="visibility:hidden" />
 
-		<!-- Joining information -->
-		<div id="joininfo" style="visibility: hidden">
-			<span id="joininfo_text"></span>
-		</div>
+    <!-- Nickname box -->
+    <div id="nickname">
+        <span>Nickname:</span><br>
+        <input id="nickname_input" type="text" maxlength="15" spellcheck="false"
+               onkeypress="onNicknameEnter(this, event)">
+    </div>
 
-		<!-- Main code -->
-		<script type="text/javascript">
-			// HTML elements
-			var page = {};
-			page.renderSurface = document.getElementById( "renderSurface" );
-			page.materialSelector = document.getElementById( "materialSelector" );
-			page.chatbox = document.getElementById( "chatbox" );
-			page.chatboxText = document.getElementById( "chatbox_text" );
-			page.chatboxEntry= document.getElementById( "chatbox_entry" );
-			page.nickname = document.getElementById( "nickname" );
-			page.nicknameInput = document.getElementById( "nickname_input" );
-			page.joinInfo = document.getElementById( "joininfo" );
-			page.joinInfoText = document.getElementById( "joininfo_text" );
+    <!-- Joining info -->
+    <div id="joininfo" style="visibility:hidden">
+        <span id="joininfo_text"></span>
+    </div>
 
-			// Game elements
-			var client, render, world, player
+<script>
+/* ------------------------------
+   HTML ELEMENTS
+------------------------------ */
+const page = {
+    renderSurface: document.getElementById("renderSurface"),
+    materialSelector: document.getElementById("materialSelector"),
+    chatbox: document.getElementById("chatbox"),
+    chatboxText: document.getElementById("chatbox_text"),
+    chatboxEntry: document.getElementById("chatbox_entry"),
+    nickname: document.getElementById("nickname"),
+    nicknameInput: document.getElementById("nickname_input"),
+    joinInfo: document.getElementById("joininfo"),
+    joinInfoText: document.getElementById("joininfo_text")
+};
 
-			// Focus on username field
-			page.nicknameInput.focus();
+let client, render, world, player;
 
-			// Respond to username entry
-			function onNicknameEnter( nicknameInput, keyEvent )
-			{
-				var nickname = nicknameInput.value.trim();
+// Focus nickname field
+page.nicknameInput.focus();
 
-				if ( keyEvent.keyCode != 13 ) return;
-				if ( nickname.length == 0 ) return;
+/* ------------------------------
+   NICKNAME ENTRY
+------------------------------ */
+function onNicknameEnter(input, e) {
+    if (e.keyCode !== 13) return;
+    const name = input.value.trim();
+    if (!name) return;
 
-				nicknameInput.blur();
+    input.blur();
+    joinGame(name);
+}
 
-				joinGame( nickname );
-			}
+/* ------------------------------
+   CHAT ENTRY
+------------------------------ */
+function onChatEnter(input, e) {
+    if (e.keyCode !== 13) return;
 
-			// Respond to chat message entry
-			function onChatEnter( chatInput, keyEvent )
-			{
+    const msg = input.value.trim();
+    input.blur();
+    page.chatbox.style.height = null;
 
-				var msg = chatInput.value.trim();
+    if (!msg) return;
 
-				if ( keyEvent.keyCode != 13 ) return;
-				chatInput.blur();
-				page.chatbox.style.height = null;
-				if ( msg.length == 0 ) return;
+    client.sendMessage(msg);
+    input.value = "";
+}
 
-				client.sendMessage( msg );
+/* ------------------------------
+   JOIN GAME
+------------------------------ */
+function joinGame(nickname) {
 
-				chatInput.value = "";
-			}
+    page.nickname.style.visibility = "hidden";
+    page.joinInfo.style.visibility = "visible";
+    page.joinInfoText.innerHTML = "Connecting to server...";
 
-			// Join game
-			function joinGame( nickname )
-			{
-				// Show join info
-				page.nickname.style.visibility = "hidden";
-				page.joinInfo.style.visibility = null;
-				page.joinInfoText.innerHTML = "Connecting to server...";
+    client = new Client(io);
+    client.connect("https://webcraft-server.onrender.com", nickname);
 
-				// Create client and attempt connection
-				client = new Client( io );
-				client.connect("https://webcraft-server.onrender.com", nickname);
+    client.on("connect", () => {
+        page.joinInfoText.innerHTML = "Receiving world...";
+    });
 
-				// Update connection status
-				client.on( "connect", function()
-				{
-                    console.log('hai');
-					page.joinInfoText.innerHTML = "Receiving world...";
-				} );
+    client.on("world", w => {
+        world = w;
 
-				// Initialise world
-				client.on( "world", function( w )
-				{
-					page.joinInfoText.innerHTML = "Building chunks...";
+        page.joinInfoText.innerHTML = "Building chunks...";
 
-					// Set up world
-					world = w;
+        render = new Renderer("renderSurface");
+        render.setWorld(world, 8);
+        render.setPerspective(60, 0.01, 200);
+        render.buildChunks(999);
 
-					// Set up renderer and build level chunks
-					render = new Renderer( "renderSurface" );
-					render.setWorld( world, 8 );
-					render.setPerspective( 60, 0.01, 200 );
+        page.joinInfoText.innerHTML = "Spawning...";
+    });
 
-					// Build all world chunks
-					render.buildChunks( 999 );
+    client.on("spawn", () => {
 
-					page.joinInfoText.innerHTML = "Spawning...";
-				} );
+        player = new Player();
+        player.setWorld(world);
+        player.setClient(client);
+        player.setInputCanvas("renderSurface");
+        player.setMaterialSelector("materialSelector");
 
-				// Spawn local player
-				client.on( "spawn", function()
-				{
-					// Set up local player
-					player = new Player();
-					player.setWorld( world );
-					player.setClient( client );
-					player.setInputCanvas( "renderSurface" );
-					player.setMaterialSelector( "materialSelector" );
+        player.on("openChat", () => {
+            page.chatboxEntry.focus();
+            page.chatbox.style.height = (render.gl.viewportHeight - 145) + "px";
+        });
 
-					// Handle open chat on 't' event
-					player.on( "openChat", function()
-					{
-						page.chatboxEntry.focus();
-						page.chatbox.style.height = ( render.gl.viewportHeight - 145 ) + "px";
-					} );
+        page.joinInfo.style.visibility = "hidden";
+        page.renderSurface.style.visibility = "visible";
+        page.materialSelector.style.display = "table";
+        page.chatbox.style.visibility = "visible";
+        page.chatboxEntry.style.visibility = "visible";
 
-					// Open game view
-					page.joinInfo.style.visibility = "hidden";
-					page.renderSurface.style.visibility = null;
-					page.materialSelector.style.display = null;
-					page.chatbox.style.visibility = null;
-					page.chatboxEntry.style.visibility = null;
+        let lastUpdate = performance.now() / 1000;
 
-					// Render loop
-					var lastUpdate = +new Date() / 1000.0;
-					setInterval( function()
-					{
-						var time = +new Date() / 1000.0;
+        setInterval(() => {
+            const now = performance.now() / 1000;
 
-						// Update local player
-						player.update();
+            player.update();
 
-						// Update networked player
-						if ( time - lastUpdate > 0.033 ) {
-							client.updatePlayer();
-							lastUpdate = time;
-						}
+            if (now - lastUpdate > 0.033) {
+                client.updatePlayer();
+                lastUpdate = now;
+            }
 
-						// Build chunks
-						render.buildChunks( 5 );
+            render.buildChunks(5);
+            render.setCamera(player.getEyePos().toArray(), player.angles);
+            render.draw();
 
-						// Draw world
-						render.setCamera( player.getEyePos().toArray(), player.angles );
-						render.draw();
+        }, 1);
+    });
 
-						while ( new Date().getTime() / 1000 - time < 0.016 );
-					}, 1 );
-				} );
+    client.on("chat", (user, msg) => {
+        page.chatboxText.innerHTML += `&lt;<span style="color:#0a0">${user}</span>&gt; ${msg}<br>`;
+    });
 
-				// Display chat messages
-				client.on( "chat", function( username, message )
-				{
-					page.chatboxText.innerHTML += "&lt;<span style=\"color: #0a0\">" + username + "</span>&gt " + message + "<br />";
-				} );
+    client.on("message", msg => {
+        page.chatboxText.innerHTML += `<span style="color:#ff8">${msg}</span><br>`;
+    });
 
-				client.on( "message", function( message )
-				{
-					page.chatboxText.innerHTML += "<span style=\"color: #ff8\">" + message + "</span><br />";
-				} );
+    client.on("kick", msg => {
+        page.joinInfo.style.visibility = "visible";
+        page.renderSurface.style.visibility = "hidden";
+        page.materialSelector.style.display = "none";
+        page.chatbox.style.visibility = "hidden";
+        page.chatboxEntry.style.visibility = "hidden";
 
-				// Handle kicking
-				client.on( "kick", function( message )
-				{
-					page.joinInfo.style.visibility = null;
-					page.renderSurface.style.visibility = "hidden";
-					page.materialSelector.style.display = "none";
-					page.chatbox.style.visibility = "hidden";
-					page.chatboxEntry.style.visibility = "hidden";
+        page.joinInfoText.innerHTML =
+            `<span style="color:#f00;text-shadow:#a00 2px 2px 0px">Kicked:</span> ${msg}`;
+    });
 
-					page.joinInfoText.innerHTML = "<span style=\"color: #f00; text-shadow: #a00 2px 2px 0px\">Kicked:</span> " + message;
-				} );
+    client.on("disconnect", kicked => {
+        if (!kicked) {
+            page.joinInfo.style.visibility = "visible";
+            page.renderSurface.style.visibility = "hidden";
+            page.materialSelector.style.display = "none";
+            page.chatbox.style.visibility = "hidden";
+            page.chatboxEntry.style.visibility = "hidden";
 
-				// Handle being disconnected
-				client.on( "disconnect", function( kicked )
-				{
-					if ( !kicked ) {
-						page.joinInfo.style.visibility = null;
-						page.renderSurface.style.visibility = "hidden";
-						page.materialSelector.style.display = "none";
-						page.chatbox.style.visibility = "hidden";
-						page.chatboxEntry.style.visibility = "hidden";
+            page.joinInfoText.innerHTML =
+                `<span style="color:#f00;text-shadow:#a00 2px 2px 0px">Connection Problem:</span> Lost connection to server!`;
+        }
+    });
+}
+</script>
 
-						page.joinInfoText.innerHTML = "<span style=\"color: #f00; text-shadow: #a00 2px 2px 0px\">Connection Problem:</span> Lost connection to server!";
-					}
-				} );
-			}
-		</script>
-	</body>
+</body>
 </html>
