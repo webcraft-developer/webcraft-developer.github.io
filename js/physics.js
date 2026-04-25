@@ -2,9 +2,18 @@
 // Physics (World Simulation) — Modernized 2026-Compatible
 // ==========================================
 
-import { BLOCK } from "./blocks.js";
+// Dual‑mode import for BLOCK
+let BLOCK;
 
-export class Physics {
+if (typeof window !== "undefined") {
+    // Browser: BLOCK is already global from blocks.js
+    BLOCK = window.BLOCK;
+} else {
+    // Node.js: load BLOCK from CommonJS
+    BLOCK = require("./blocks.js").BLOCK;
+}
+
+class Physics {
     constructor() {
         this.lastStep = -1;
         this.world = null;
@@ -87,6 +96,11 @@ export class Physics {
             }
         }
     }
+}
+
+// Browser global
+if (typeof window !== "undefined") {
+    window.Physics = Physics;
 }
 
 // Node.js export
